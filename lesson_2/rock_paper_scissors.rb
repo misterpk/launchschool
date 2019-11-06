@@ -35,8 +35,8 @@ end
 def generate_game_abbreviations
   moves = []
 
-  GAME_KEY.each do |_move, data|
-    moves.push(data[:key])
+  GAME_KEY.values.each do |move|
+    moves.push(move[:key])
   end
 
   moves.join(', ')
@@ -56,11 +56,11 @@ def receive_player_key
   choice
 end
 
-def convert_key_to_choice(key)
+def convert_abbreviation_to_choice(abbreviation)
   player_choice = ''
-  GAME_KEY.each do |move, data|
-    if key == data[:key]
-      player_choice = move.to_s
+  GAME_KEY.values.each do |move|
+    if abbreviation == move[:key]
+      player_choice = GAME_KEY.key(move).to_s
     end
   end
 
@@ -68,7 +68,7 @@ def convert_key_to_choice(key)
 end
 
 def generate_player_choice
-  convert_key_to_choice(receive_player_key)
+  convert_abbreviation_to_choice(receive_player_key)
 end
 
 def generate_computer_choice
