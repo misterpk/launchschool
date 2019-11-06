@@ -1,25 +1,20 @@
-WINNING_CHOICES = {
-  rock: %w(lizard scissors),
-  paper: %w(rock spock),
-  scissors: %w(paper lizard),
-  spock: %w(scissors rock),
-  lizard: %w(spock paper)
+require 'pry'
+
+GAME_KEY = {
+  rock: { key: 'r', beats: %w(lizard scissors) },
+  paper: { key: 'p', beats: %w(rock spock) },
+  scissors: { key: 's', beats: %w(paper lizard) },
+  spock: { key: 'k', beats: %w(scissors rock) },
+  lizard: { key: 'l', beats: %w(spock paper) }
 }
 WINNING_SCORE = 5
-MOVES_KEY = {
-  rock: 'r',
-  paper: 'p',
-  scissors: 's',
-  spock: 'k',
-  lizard: 'l'
-}
 
 def prompt(message)
   puts("=> #{message}")
 end
 
 def win?(first, second)
-  WINNING_CHOICES[first.to_sym].include?(second)
+  GAME_KEY[first.to_sym][:beats].include?(second)
 end
 
 def display_results(player, computer)
@@ -37,19 +32,59 @@ def update_score(score, player, computer)
   score[:computer] += 1 if win?(computer, player)
 end
 
-def generate_player_choice
+def generate_game_abbreviations
+  moves = []
+
+  GAME_KEY.each do |_move, data|
+    moves.push(data[:key])
+  end
+
+  moves.join(', ')
+end
+
+def receive_player_key
   choice = ''
   loop do
-    prompt("Choose one: #{MOVES_KEY.values.join(', ')}")
+    game_abbreviations = generate_game_abbreviations
+    prompt("Choose one: #{game_abbreviations}")
     choice = gets.chomp
 
-    if MOVES_KEY.value?(choice)
-      break
-    else
-      prompt("That's not a valid choice.")
+    break if game_abbreviations.include?(choice)
+    prompt("That's not a valid choice.")
+  end
+
+  choice
+end
+
+def convert_key_to_choice(key)
+  player_choice = ''
+  GAME_KEY.each do |move, data|
+    if key == data[:key]
+      player_choice = move.to_s
     end
   end
-  choice
+
+  player_choice
+end
+
+def generate_player_choice
+  convert_key_to_choice(receive_player_key)
+end
+
+def generate_computer_choice
+  GAME_KEY.keys.sample.to_s
+end
+
+def clear_screen
+  system('clear') || system('cls')
+end
+
+def determine_winner(score)
+  if score[:player] == WINNING_SCORE
+    prompt("You win!")
+  elsif score[:computer] == WINNING_SCORE
+    prompt("The computer wins!")
+  end
 end
 
 score = {
@@ -62,35 +97,35 @@ prompt('Let\'s play rock, paper, scissors, spock, lizard. '\
 
 legend = <<-LEGEND
 Key:
-     Rock: #{MOVES_KEY[:rock]}
-     Paper: #{MOVES_KEY[:paper]}
-     Scissors: #{MOVES_KEY[:scissors]}
-     Spock: #{MOVES_KEY[:spock]}
-     Lizard: #{MOVES_KEY[:lizard]}
+     Rock: #{GAME_KEY[:rock][:key]}
+     Paper: #{GAME_KEY[:paper][:key]}
+     Scissors: #{GAME_KEY[:scissors][:key]}
+     Spock: #{GAME_KEY[:spock][:key]}
+     Lizard: #{GAME_KEY[:lizard][:key]}
 LEGEND
 
 prompt(legend)
 
 loop do
   player_choice = generate_player_choice
-  computer_choice = MOVES_KEY.values.sample
+  computer_choice = generate_computer_choice
 
-  player_key = MOVES_KEY.key(player_choice).to_s
-  computer_key = MOVES_KEY.key(computer_choice).to_s
+  clear_screen
 
-  prompt("You chose: #{player_key} : Computer chose: #{computer_key}")
+  prompt("You chose: #{player_choice} : Computer chose: #{computer_choice}")
 
-  display_results(player_key, computer_key)
-  update_score(score, player_key, computer_key)
+  display_results(player_choice, computer_choice)
+  update_score(score, player_choice, computer_choice)
 
   prompt("Your score: #{score[:player]} : Computer score: #{score[:computer]}")
 
-  if score[:player] == WINNING_SCORE
-    prompt("You win!")
-    break
-  elsif score[:computer] == WINNING_SCORE
-    prompt("The computer wins!")
-    break
+  determine_winner(score)
+
+  if score[:player] == WINNING_SCORE || score[:computer] == WINNING_SCORE
+    prompt("Would you like to play again? (y/N)")
+    play_again = gets.chomp
+    break unless play_again.downcase.start_with?('y')
+    clear_screen
   end
 end
 
