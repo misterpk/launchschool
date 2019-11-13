@@ -5,7 +5,8 @@
 # validation not needed
 
 # Examples / Test Cases
-# display_area(10, 7) => The area of the room is 70.0 square feet (10080 square inches - 65032.13 square cm).
+# display_area(10, 7) => The area of the room is 70.0 square feet
+# (10080 square inches - 65032.13 square cm).
 
 # Data Structure
 # numbers

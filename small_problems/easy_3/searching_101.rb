@@ -37,9 +37,11 @@ loop do
   counter += 1
 end
 
-message = array_of_numbers.include?(number.to_i) ?
-            "The number #{number} appears in #{array_of_numbers.inspect}" :
+message = if array_of_numbers.include?(number.to_i)
+            "The number #{number} appears in #{array_of_numbers.inspect}"
+          else
             "The number #{number} does not appear in " \
             "#{array_of_numbers.inspect}"
+          end
 
 puts message

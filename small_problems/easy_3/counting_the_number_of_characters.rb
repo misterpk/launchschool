@@ -26,8 +26,8 @@ words = gets.chomp
 # an example of clever code. I like what it does but it is
 # unnecessarily complex
 number_of_chars = words.split
-                       .map { |word| word.size }
-                       .reduce {|sum, number_of_chars| sum + number_of_chars }
+                       .map(&:size)
+                       .reduce { |sum, chars_count| sum + chars_count }
 
 # LaunchSchool solution (in this case it's way easier than what I did)
 # number_of_chars = words.delete(' ').size

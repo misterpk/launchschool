@@ -52,7 +52,8 @@ operator = ''
 loop do
   operator = gets.chomp
   break if operator == 's' || operator == 'p'
-  puts 'Invalid input. Please enter either \'s\' for the sum or \'p\' for the product'
+  puts 'Invalid input. Please enter either \'s\' for the sum or \'p\' for ' \
+  'the product'
 end
 
 array_of_ints = create_array(int)
@@ -64,8 +65,8 @@ elsif operator == 'p'
   value = product(array_of_ints)
 end
 
-puts "The #{operator_table[operator]} of the integers between #{STARTING_INT} " \
-     "and #{int} is #{value}"
+puts "The #{operator_table[operator]} of the integers between  " \
+     "#{STARTING_INT} and #{int} is #{value}"
 
 # launch school code
 # def compute_sum(number)

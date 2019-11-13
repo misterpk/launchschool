@@ -6,8 +6,10 @@
 # validation not needed
 
 # Examples / Test Cases
-# display_area(10, 7)       => The area of the room is 70.0 square meters (753.47 square feet).
-# display_area(5, 8)        => The area of the room is 40.0 square meters (430.56 square feet).
+# display_area(10, 7)       => The area of the room is 70.0 square meters
+# (753.47 square feet).
+# display_area(5, 8)        => The area of the room is 40.0 square meters
+# (430.56 square feet).
 
 # Data Structure
 # numbers
