@@ -15,7 +15,7 @@
 # algorithm
 # string.char
 # each char, capitalize every other
-def staggered_case(string, upcase_or_downcase="upcase")
+def staggered_case_include_non_alpha(string, upcase_or_downcase="upcase")
   # new_array = []
   # string.chars.each_with_index do |char, index|
   #   new_array[index] = index.even? ? char.upcase : char.downcase
@@ -34,6 +34,6 @@ def staggered_case(string, upcase_or_downcase="upcase")
   result
 end
 
-puts staggered_case('I Love Launch School!') == 'I LoVe lAuNcH ScHoOl!'
-puts staggered_case('ALL_CAPS') == 'AlL_CaPs'
-puts staggered_case('ignore 77 the 444 numbers') == 'IgNoRe 77 ThE 444 NuMbErS'
+puts staggered_case_include_non_alpha('I Love Launch School!') == 'I LoVe lAuNcH ScHoOl!'
+puts staggered_case_include_non_alpha('ALL_CAPS') == 'AlL_CaPs'
+puts staggered_case_include_non_alpha('ignore 77 the 444 numbers') == 'IgNoRe 77 ThE 444 NuMbErS'
