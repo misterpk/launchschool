@@ -6,12 +6,15 @@ COMPUTER_MARKER = 'O'
 WINNING_LINES = [
   [1, 2, 3],
   [4, 5, 6],
+  [7, 8, 9],
   [1, 4, 7],
   [2, 5, 8],
+  [3, 6, 9],
   [1, 5, 9],
   [3, 5, 7]
 ]
 WINNING_SCORE = 5
+FIRST_MOVE = 'choose'
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -72,16 +75,53 @@ def player_places_piece!(board)
 end
 
 def computer_places_piece!(board)
+  square = nil
+
+  # offense first
   WINNING_LINES.each do |line|
-    if board.values_at(*line).count(PLAYER_MARKER) == 2
-      line.each do |square|
-        board[square] = COMPUTER_MARKER if board[square] == ' '
-        return
-      end
+    square = find_at_risk_square(line, board, COMPUTER_MARKER)
+    break if square
+  end
+
+  # defense
+  if !square
+    WINNING_LINES.each do |line|
+      square = find_at_risk_square(line, board, PLAYER_MARKER)
+      break if square
     end
   end
-  square = empty_squares(board).sample
+
+  # pick 5 if available
+  if board[5] == INITIAL_MARKER
+    square = 5
+  end
+
+  # just pick a square
+  if !square
+    square = empty_squares(board).sample
+  end
+
   board[square] = COMPUTER_MARKER
+end
+
+def place_piece!(board, current_player)
+  if current_player == "player"
+    player_places_piece!(board)
+  elsif current_player == "computer"
+    computer_places_piece!(board)
+  end
+end
+
+def alternate_player(current_player)
+  current_player == "player" ? "computer" : "player"
+end
+
+def find_at_risk_square(line, board, marker)
+  if board.values_at(*line).count(marker) == 2
+    board.select{|k,v| line.include?(k) && v == INITIAL_MARKER}.keys.first
+  else
+    nil
+  end
 end
 
 def board_full?(board)
@@ -94,15 +134,6 @@ end
 
 def detect_winner(board)
   WINNING_LINES.each do |line|
-    # if board[line[0]] == PLAYER_MARKER &&
-    #   board[line[1]] == PLAYER_MARKER &&
-    #   board[line[2]] == PLAYER_MARKER
-    #  return "Player"
-    # elsif board[line[0]] == PLAYER_MARKER &&
-    #      board[line[1]] == PLAYER_MARKER &&
-    #      board[line[2]] == PLAYER_MARKER
-    #  return "Computer"
-    # end
     if board.values_at(*line).count(PLAYER_MARKER) == 3
       return 'Player'
     elsif board.values_at(*line).count(COMPUTER_MARKER) == 3
@@ -127,14 +158,49 @@ scores = initialize_scores
 
 loop do
   board = initialize_board
+  current_player = FIRST_MOVE
 
   loop do
-    display_board(board, scores)
-    player_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+    case FIRST_MOVE
+    when "choose"
+      first_move = ""
+      loop do
+        prompt "Who should go first? (player or computer)"
+        first_move = gets.chomp
+        break if first_move == "player" || first_move == "computer"
+      end
 
-    computer_places_piece!(board)
-    break if someone_won?(board) || board_full?(board)
+      current_player = first_move
+
+      case first_move
+      when "player"
+        loop do
+          display_board(board, scores)
+          place_piece!(board, current_player)
+          current_player = alternate_player(current_player)
+          break if someone_won?(board) || board_full?(board)
+        end
+        break
+      when "computer"
+        loop do
+          display_board(board, scores)
+          place_piece!(board, current_player)
+          current_player = alternate_player(current_player)
+          break if someone_won?(board) || board_full?(board)
+        end
+        break
+      end
+    when "player"
+      display_board(board, scores)
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      break if someone_won?(board) || board_full?(board)
+    when "computer"
+      display_board(board, scores)
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      break if someone_won?(board) || board_full?(board)
+    end
   end
 
   if someone_won?(board)
