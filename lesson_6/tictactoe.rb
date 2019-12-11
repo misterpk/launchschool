@@ -223,3 +223,7 @@ loop do
 end
 
 prompt "Thanks for playing tic tac toe! Good bye!"
+
+# TODO: Implement Minimax algorithm: https://en.wikipedia.org/wiki/Minimax
+# TODO: Make a 5x5 and 9x9 board
+# TODO: Play with more players, 2 comp v. 1 human, 2 humans v 1 comp
