@@ -65,7 +65,11 @@ def determine_winner(player_hand, dealer_hand)
   dealer_total = calculate_total(dealer_hand)
   player_total = calculate_total(player_hand)
 
-  if dealer_total > player_total
+  if player_total > 21
+    :player_busted
+  elsif dealer_total > 21
+    :dealer_busted
+  elsif dealer_total > player_total
     :dealer
   elsif player_total > dealer_total
     :player
@@ -75,9 +79,12 @@ def determine_winner(player_hand, dealer_hand)
 end
 
 def display_winner(player_hand, dealer_hand)
-  prompt "The dealer has #{calculate_total(dealer_hand)}. " \
-         "You have #{calculate_total(player_hand)}"
+  puts "*" * 10
   case determine_winner(player_hand, dealer_hand)
+  when :player_busted
+    prompt "You busted! Dealer wins!"
+  when :dealer_busted
+    prompt "The dealer busted! You win!"
   when :dealer
     prompt "The dealer wins!"
   when :player
@@ -85,6 +92,7 @@ def display_winner(player_hand, dealer_hand)
   when :tie
     prompt "It's a tie!"
   end
+  puts "*" * 10
 end
 
 def bust?(hand)
@@ -92,16 +100,20 @@ def bust?(hand)
 end
 
 def player_turn(deck, hand)
-  action = ""
-
-  until action == "stay" || bust?(hand)
-    prompt "Would you like to hit or stay?"
+  loop do
+    prompt "Would you like to (h)it or (s)tay?"
     action = gets.chomp
 
-    if action == "hit"
+    if %w(hit h).include?(action.downcase)
+      prompt "You hit!"
       deal_card!(deck, hand)
-      prompt "You have: " + card_values_string(hand)
-      prompt "Your total is #{calculate_total(hand)}"
+      display_totals(hand, :player)
+      break if calculate_total(hand) > 21
+    elsif %w(stay s).include?(action.downcase)
+      prompt "You stay!"
+      break
+    else
+      prompt "Invalid entry. Please enter 'h' or 's'."
     end
   end
 end
@@ -109,12 +121,12 @@ end
 def dealer_turn(deck, hand)
   dealer_total = calculate_total(hand)
   until dealer_total >= 17
+    prompt "The dealer hits!"
     deal_card!(deck, hand)
     dealer_total = calculate_total(hand)
+    display_totals(hand, :dealer)
   end
-
-  prompt "Dealer has: #{card_values_string(hand)}"
-  prompt "Their total is #{calculate_total(hand)}"
+  prompt "The dealer stays!" if dealer_total < 22
 end
 
 def play_again?
@@ -127,6 +139,17 @@ def card_name(card)
   "#{card[:name]} of #{card[:suit]}"
 end
 
+def display_totals(hand, player_type)
+  case player_type
+  when :player
+    prompt "You have: " + card_values_string(hand)
+    prompt "Your total is #{calculate_total(hand)}"
+  when :dealer
+    prompt "Dealer has: " + card_values_string(hand)
+    prompt "Their total is #{calculate_total(hand)}"
+  end
+end
+
 loop do
   player_hand = []
   dealer_hand = []
@@ -134,21 +157,26 @@ loop do
   deal_initial_hand(deck, player_hand, dealer_hand)
 
   prompt "Dealer has: #{card_name(dealer_hand[0])} and an unknown card"
-  prompt "You have: " + card_values_string(player_hand) +
-         ", for a total of #{calculate_total(player_hand)}"
+  display_totals(player_hand, :player)
   player_turn(deck, player_hand)
 
   if bust?(player_hand)
-    prompt "You busted! Dealer wins!"
+    display_winner(player_hand, dealer_hand)
     play_again? ? next : break
   end
 
+  display_totals(dealer_hand, :dealer)
   dealer_turn(deck, dealer_hand)
 
   if bust?(dealer_hand)
-    prompt "The dealer busted! You win!"
+    display_winner(player_hand, dealer_hand)
     play_again? ? next : break
   end
+
+  puts "*" * 10
+  display_totals(dealer_hand, :dealer)
+  puts "*" * 10
+  display_totals(player_hand, :player)
 
   display_winner(player_hand, dealer_hand)
   play_again? ? next : break
