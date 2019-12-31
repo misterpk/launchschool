@@ -99,7 +99,7 @@ def bust?(hand)
   calculate_total(hand) > 21
 end
 
-def player_turn(deck, hand)
+def player_turn(deck, hand, totals)
   loop do
     prompt "Would you like to (h)it or (s)tay?"
     action = gets.chomp
@@ -107,8 +107,9 @@ def player_turn(deck, hand)
     if %w(hit h).include?(action.downcase)
       prompt "You hit!"
       deal_card!(deck, hand)
-      display_totals(hand, :player)
-      break if calculate_total(hand) > 21
+      display_totals(hand, :player, totals)
+      p hand
+      break if totals[:player] > 21
     elsif %w(stay s).include?(action.downcase)
       prompt "You stay!"
       break
@@ -118,13 +119,14 @@ def player_turn(deck, hand)
   end
 end
 
-def dealer_turn(deck, hand)
-  dealer_total = calculate_total(hand)
+def dealer_turn(deck, hand, totals)
+  dealer_total = totals[:dealer]
   until dealer_total >= 17
     prompt "The dealer hits!"
     deal_card!(deck, hand)
-    dealer_total = calculate_total(hand)
-    display_totals(hand, :dealer)
+    totals[:dealer] = calculate_total(hand)
+    dealer_total = totals[:dealer]
+    display_totals(hand, :dealer, totals)
   end
   prompt "The dealer stays!" if dealer_total < 22
 end
@@ -139,34 +141,39 @@ def card_name(card)
   "#{card[:name]} of #{card[:suit]}"
 end
 
-def display_totals(hand, player_type)
+def display_totals(hand, player_type, totals)
+  totals[player_type] = calculate_total(hand)
   case player_type
   when :player
     prompt "You have: " + card_values_string(hand)
-    prompt "Your total is #{calculate_total(hand)}"
+    prompt "Your total is #{totals[player_type]}"
   when :dealer
     prompt "Dealer has: " + card_values_string(hand)
-    prompt "Their total is #{calculate_total(hand)}"
+    prompt "Their total is #{totals[player_type]}"
   end
 end
 
 loop do
   player_hand = []
   dealer_hand = []
+  totals = {
+    player: 0,
+    dealer: 0
+  }
   deck = initialize_deck
   deal_initial_hand(deck, player_hand, dealer_hand)
 
   prompt "Dealer has: #{card_name(dealer_hand[0])} and an unknown card"
-  display_totals(player_hand, :player)
-  player_turn(deck, player_hand)
+  display_totals(player_hand, :player, totals)
+  player_turn(deck, player_hand, totals)
 
   if bust?(player_hand)
     display_winner(player_hand, dealer_hand)
     play_again? ? next : break
   end
 
-  display_totals(dealer_hand, :dealer)
-  dealer_turn(deck, dealer_hand)
+  display_totals(dealer_hand, :dealer, totals)
+  dealer_turn(deck, dealer_hand, totals)
 
   if bust?(dealer_hand)
     display_winner(player_hand, dealer_hand)
@@ -174,9 +181,9 @@ loop do
   end
 
   puts "*" * 10
-  display_totals(dealer_hand, :dealer)
+  display_totals(dealer_hand, :dealer, totals)
   puts "*" * 10
-  display_totals(player_hand, :player)
+  display_totals(player_hand, :player, totals)
 
   display_winner(player_hand, dealer_hand)
   play_again? ? next : break
