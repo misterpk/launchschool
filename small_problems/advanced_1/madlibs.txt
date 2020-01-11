@@ -1,4 +1,4 @@
-The adverb adjective cat adverb
-licks the adverb adjective
-dog, who adverb verb his
-tail and verb around.
+The %{adjective} brown %{noun} %{adverb}
+%{verb} the %{adjective} yellow
+%{noun}, who %{adverb} %{verb} his
+%{noun} and looks around.

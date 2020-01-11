@@ -14,7 +14,6 @@
 # from array
 require 'byebug'
 
-WORD_TYPES = %w(adverb noun adjective verb)
 ADVERBS = %w(then sheepishly urgently yawningly openly similarly briskly twice
              honestly gratefully crossly originally frantically especially
              excitedly far eagerly seldom quirkily soon)
@@ -27,26 +26,11 @@ VERBS = %w(bombs sails rubs levels pines grates trots scrapes paints repeats
            arrives shaves admits invents sighs excuses cleans scares stitches
            crawls)
 
-file = File.open('madlibs.txt')
-lines = file.readlines.map(&:chomp)
-new_lines = []
-lines.each do |line|
-  new_line = ""
-  words = line.split
-  words.each do |word|
-    new_line << case word
-                when "adverb"
-                  ADVERBS.sample + " "
-                when "noun"
-                  NOUNS.sample + " "
-                when "adjective"
-                  ADJECTIVES.sample + " "
-                when "verb"
-                  VERBS.sample + " "
-                else
-                  word + " "
-                end
+File.open('madlibs.txt') do |file|
+  file.each do |line|
+    puts format(line, noun: NOUNS.sample,
+                      verb: VERBS.sample,
+                      adjective: ADJECTIVES.sample,
+                      adverb: ADVERBS.sample)
   end
-  new_lines << new_line.strip
 end
-new_lines.each { |line| p line }
