@@ -12,7 +12,7 @@ require 'byebug'
 def transpose(matrix)
   result = []
   (matrix.first.size).times do |column_index|
-    new_row = (0..matrix.size - 1).map do |row_index|
+    new_row = (0...matrix.size).map do |row_index|
       matrix[row_index][column_index]
     end
     result << new_row
