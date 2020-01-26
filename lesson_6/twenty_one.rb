@@ -29,7 +29,12 @@ def deal_initial_hand(deck, player_hand, dealer_hand)
   end
 end
 
-def deal_card!(deck, hand)
+def deal_card!(deck, hand, player_type)
+  if player_type == :player
+    prompt "You hit!"
+  elsif player_type == :dealer
+    prompt "The dealer hits!"
+  end
   hand.push(deck.pop)
 end
 
@@ -62,36 +67,46 @@ def card_values_string(hand)
 end
 
 def get_result(totals)
-  case
-  when totals[:player] > WINNING_SCORE
+  if totals[:player] > WINNING_SCORE
     :player_busted
-  when totals[:dealer] > WINNING_SCORE
+  elsif totals[:dealer] > WINNING_SCORE
     :dealer_busted
-  when totals[:dealer] > totals[:player]
+  elsif totals[:dealer] > totals[:player]
     :dealer
-  when totals[:player] > totals[:dealer]
+  elsif totals[:player] > totals[:dealer]
     :player
   else
     :tie
   end
 end
 
-def determine_winner_and_update_score(totals, score)
-  case get_result(totals)
+def determine_winner(totals, score)
+  result = get_result(totals)
+  case result
   when :player_busted
-    score[:dealer] += 1
     prompt "You busted! Dealer wins!"
   when :dealer_busted
-    score[:player] += 1
     prompt "The dealer busted! You win!"
   when :dealer
-    score[:dealer] += 1
     prompt "The dealer wins!"
   when :player
-    score[:player] += 1
     prompt "You win!"
   when :tie
     prompt "It's a tie!"
+  end
+  update_score(result, score)
+end
+
+def update_score(result, score)
+  case result
+  when :player_busted
+    score[:dealer] += 1
+  when :dealer_busted
+    score[:player] += 1
+  when :dealer
+    score[:dealer] += 1
+  when :player
+    score[:player] += 1
   end
 end
 
@@ -105,8 +120,7 @@ def player_turn(deck, hand, totals)
     action = gets.chomp
 
     if %w(hit h).include?(action.downcase)
-      prompt "You hit!"
-      deal_card!(deck, hand)
+      deal_card!(deck, hand, :player)
       totals[:player] = calculate_total(hand)
       display_hand_information(hand, :player, totals)
       break if totals[:player] > WINNING_SCORE
@@ -121,8 +135,7 @@ end
 
 def dealer_turn(deck, hand, totals)
   until totals[:dealer] >= DEALER_STANDS_AT
-    prompt "The dealer hits!"
-    deal_card!(deck, hand)
+    deal_card!(deck, hand, :dealer)
     totals[:dealer] = calculate_total(hand)
     display_hand_information(hand, :dealer, totals)
   end
@@ -168,9 +181,10 @@ def end_of_round(player_hand, dealer_hand, totals, score)
   puts "*" * 10
   display_hand_information(dealer_hand, :dealer, totals)
   puts "*" * 10
-  determine_winner_and_update_score(totals, score)
+  determine_winner(totals, score)
   puts "*" * 10
-  prompt "You've won #{score[:player]} hands. The dealer has won #{score[:dealer]} hands."
+  prompt "You've won #{score[:player]} hands. " \
+         "The dealer has won #{score[:dealer]} hands."
   display_overall_winner(score) if end_of_game?(score)
 end
 
@@ -197,8 +211,8 @@ def display_overall_winner(score)
   end
 end
 
-DEALER_STANDS_AT = 17.freeze
-WINNING_SCORE = 21.freeze
+DEALER_STANDS_AT = 17
+WINNING_SCORE = 21
 
 score = setup_game_score
 
