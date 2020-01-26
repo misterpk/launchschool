@@ -164,14 +164,18 @@ end
 
 def end_of_round(player_hand, dealer_hand, totals, score)
   puts "*" * 10
-  display_hand_information(dealer_hand, :dealer, totals)
-  puts "*" * 10
   display_hand_information(player_hand, :player, totals)
+  puts "*" * 10
+  display_hand_information(dealer_hand, :dealer, totals)
   puts "*" * 10
   determine_winner_and_update_score(totals, score)
   puts "*" * 10
   prompt "You've won #{score[:player]} hands. The dealer has won #{score[:dealer]} hands."
   display_overall_winner(score) if end_of_game?(score)
+end
+
+def clear
+  system('clear') || system('cls')
 end
 
 def setup_game_score
@@ -199,6 +203,7 @@ WINNING_SCORE = 21.freeze
 score = setup_game_score
 
 loop do
+  clear
   player_hand = []
   dealer_hand = []
 
@@ -211,10 +216,12 @@ loop do
   player_turn(deck, player_hand, totals)
 
   if bust?(:player, totals)
+    clear
     end_of_round(player_hand, dealer_hand, totals, score)
     play_again?(score) ? next : break
   end
 
+  clear
   display_hand_information(dealer_hand, :dealer, totals)
   dealer_turn(deck, dealer_hand, totals)
 
