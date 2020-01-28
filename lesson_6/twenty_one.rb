@@ -80,8 +80,7 @@ def get_result(totals)
   end
 end
 
-def determine_winner(totals, score)
-  result = get_result(totals)
+def display_winner(result)
   case result
   when :player_busted
     prompt "You busted! Dealer wins!"
@@ -94,7 +93,6 @@ def determine_winner(totals, score)
   when :tie
     prompt "It's a tie!"
   end
-  update_score(result, score)
 end
 
 def update_score(result, score)
@@ -150,7 +148,7 @@ def play_again?(score)
   end
 
   play_again = gets.chomp
-  play_again.upcase == "Y" || play_again.upcase == "YES"
+  play_again.upcase != "N" && play_again.upcase != "NO"
 end
 
 def card_name(card)
@@ -175,17 +173,27 @@ def setup_initial_score(player_hand, dealer_hand)
   }
 end
 
-def end_of_round(player_hand, dealer_hand, totals, score)
-  puts "*" * 10
-  display_hand_information(player_hand, :player, totals)
-  puts "*" * 10
-  display_hand_information(dealer_hand, :dealer, totals)
-  puts "*" * 10
-  determine_winner(totals, score)
+def end_game(player_hand, dealer_hand, totals, score)
+  display_players_hands(player_hand, dealer_hand, totals)
+  result = get_result(totals)
+  display_winner(result)
+  update_score(result, score)
   puts "*" * 10
   prompt "You've won #{score[:player]} hands. " \
          "The dealer has won #{score[:dealer]} hands."
   display_overall_winner(score) if end_of_game?(score)
+end
+
+def display_players_hands(player_hand, dealer_hand, totals, move_number=nil)
+  puts "*" * 10
+  if move_number == 0
+    prompt "Dealer has: #{card_name(dealer_hand[0])} and an unknown card"
+  else
+    display_hand_information(dealer_hand, :dealer, totals)
+  end
+  puts "*" * 10
+  display_hand_information(player_hand, :player, totals)
+  puts "*" * 10
 end
 
 def clear
@@ -225,13 +233,12 @@ loop do
   deal_initial_hand(deck, player_hand, dealer_hand)
   totals = setup_initial_score(player_hand, dealer_hand)
 
-  prompt "Dealer has: #{card_name(dealer_hand[0])} and an unknown card"
-  display_hand_information(player_hand, :player, totals)
+  display_players_hands(player_hand, dealer_hand, totals, 0)
   player_turn(deck, player_hand, totals)
 
   if bust?(:player, totals)
     clear
-    end_of_round(player_hand, dealer_hand, totals, score)
+    end_game(player_hand, dealer_hand, totals, score)
     play_again?(score) ? next : break
   end
 
@@ -240,11 +247,11 @@ loop do
   dealer_turn(deck, dealer_hand, totals)
 
   if bust?(:dealer, totals)
-    end_of_round(player_hand, dealer_hand, totals, score)
+    end_game(player_hand, dealer_hand, totals, score)
     play_again?(score) ? next : break
   end
 
-  end_of_round(player_hand, dealer_hand, totals, score)
+  end_game(player_hand, dealer_hand, totals, score)
   play_again?(score) ? next : break
 end
 
